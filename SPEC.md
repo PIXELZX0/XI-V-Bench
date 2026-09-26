@@ -1,140 +1,140 @@
-# XI-V Bench 1.0 — 설계 명세 (draft v0.1)
+# XI-V Bench 1.0 — Design specification (draft v0.1)
 
-**대상**: System One 모델 (빠른 단일 패스 의사결정 — 추론 연쇄 없이 한 번에 판단)
-**구성**: `Easy` / `Standard` / `Hard` 3개 티어 × 4개 언어 = 12개 셀
-**언어**: `en`(English) · `ko`(한국어) · `zh`(中文) · `ja`(日本語)
+**Target**: System One models (fast single-pass decision making — judge in one step without a chain of reasoning)
+**Composition**: `Easy` / `Standard` / `Hard` 3 tiers × 4 languages = 12 cells
+**Languages**: `en`(English) · `ko`(한국어) · `zh`(中文) · `ja`(日本語)
 
 ---
 
-## 1. 문항 스키마 (JevBench 호환 + 언어 확장)
+## 1. Item schema (JevBench-compatible + language extension)
 
 ```jsonc
 {
   "id": "ko-standard-0007",          // {lang}-{tier}-{4digit}
   "lang": "ko",                       // en | ko | zh | ja
   "tier": "standard",                 // easy | standard | hard
-  "family": "policy",                 // FAMILIES(routing|adequacy|policy|intent|ordinal|extraction) 또는 HARD_FAMILIES(long_policy|tradeoff|ambiguous|trap|multi_hop|temporal_numeric|adversarial|probability)
-  "group": "tr-014",                  // 번역/변형 문항 묶음(언어 간 동일 문항 식별자) — 언어 일관성 측정용
-  "state": "<상황/문맥 — 지시·근거 문서, 표, 대화 등>",
+  "family": "policy",                 // FAMILIES(routing|adequacy|policy|intent|ordinal|extraction) or HARD_FAMILIES(long_policy|tradeoff|ambiguous|trap|multi_hop|temporal_numeric|adversarial|probability)
+  "group": "tr-014",                  // translation/variant item bundle (identifier of the same item across languages) — used for language-consistency measurement
+  "state": "<situation/context — instructions, evidence documents, tables, dialogue, etc.>",
   "question": {
     "qtype": "choice",                // choice | score | noul
-    "instructions": "가장 알맞은 것을 고르시오. 확신도를 함께 보고하시오.",
-    "criteria": {                     // 평가 기준(선택): 라벨별 판정 기준 — noul/choice 에서 특히 중요
+    "instructions": "Choose the most appropriate option. Report confidence along with your answer.",
+    "criteria": {                     // evaluation criteria (optional): decision rule per label — especially important for noul/choice
       "true": "...", "false": "..."
     }
   },
-  "labels": ["A", "B", "C", "D"],     // 선택지 텍스트(2~8개)
-  "expected": "C",                    // 정답 라벨
+  "labels": ["A", "B", "C", "D"],     // option texts (2–8)
+  "expected": "C",                    // correct label
   "provenance": {
     "source_kind": "authored | adapted | translated",
     "source": "XI-V authored / KMMLU / JMMLU / CMMLU / MMLU / CLUE ...",
     "source_item_id": "...",
     "license": "MIT | CC-BY-SA-4.0 | ...",
-    "label_basis": "정답 근거 한 줄",
-    "translation_of": "en-standard-0007",   // 번역 문항이면 원문 id
+    "label_basis": "one-line rationale for the answer",
+    "translation_of": "en-standard-0007",   // source id, if this is a translated item
     "reviewed": true, "frozen_utc": "2026-09-26T08:00:00Z"
   },
-  "split": "public",                  // JevBench 규약: public | private (평가셋은 public)
-  "difficulty_notes": "왜 이 티어인가(추론 단계 수, 지시 모호성, 근거 분산도)"
+  "split": "public",                  // JevBench convention: public | private (the eval set is public)
+  "difficulty_notes": "why this tier (number of reasoning steps, instruction ambiguity, evidence dispersion)"
 }
 ```
 
-**qtype 정의**
-- `choice` — 라벨 중 정답 하나 (기본)
-- `score` — 서수/분포 판단(예: 감정 강도, 위험도) → 정답은 등급/분포
-- `noul` — 예/아니오 계열 이진 판정 (`labels=["no","yes"]`), 조건 불충족은 "아니오"
+**qtype definitions**
+- `choice` — one correct label among the labels (default)
+- `score` — ordinal/distribution judgment (e.g. emotion intensity, risk level) → the answer is a grade/distribution
+- `noul` — yes/no binary judgment (`labels=["no","yes"]`) — these are the probability keys returned by adapters. `question.criteria` keys must be exactly `true`/`false` (the option texts the model reads); localized wording is preserved inside the criteria values and the instructions. An unmet condition is "no".
 
-**티어 정의(고정)**
-| 티어 | 요구 | 문항당 지시 길이 | 오답 유혹 |
+**Tier definitions (fixed)**
+| Tier | Requirement | Instruction length per item | Wrong-answer lure |
 |---|---|---|---|
-| Easy | 문맥에서 정답이 직접 확인됨 | ~1문장 | 표면적 유사 라벨 |
-| Standard | 2~3단계 결합(조건 충족·제외 규칙) | 1~2단락 | 부분 조건만 만족하는 라벨 |
-| Hard | 근거가 문맥 여러 곳에 분산 + 상충 정보/P0.5 함정 | 장문(수천 토큰) | 근거 한 조각만 보면 맞아 보이는 라벨 |
+| Easy | the answer is directly verifiable from the context | ~1 sentence | surface-similar labels |
+| Standard | 2–3 step combination (condition satisfaction, exclusion rules) | 1–2 paragraphs | labels that satisfy only part of the conditions |
+| Hard | evidence dispersed across multiple places in the context + conflicting information / P0.5 trap | long (thousands of tokens) | labels that look correct if only one piece of evidence is seen |
 
 ---
 
-## 2. 셀 구성 (제안)
+## 2. Cell composition (proposed)
 
-| 티어 | en | ko | zh | ja | 셀 합 | 전체 |
+| Tier | en | ko | zh | ja | Cell sum | Total |
 |---|---|---|---|---|---|---|
 | Easy | 32 | 32 | 32 | 32 | 128 | |
 | Standard | 32 | 32 | 32 | 32 | 128 | |
 | Hard | 32 | 32 | 32 | 32 | 128 | **384** |
 
-- 최소 요건: 각 셀 ≥ 30 (tier별 신뢰구간 ±~9%p 확보)
-- **교차언어 세트**: 동일 문항의 4개 언어 버전(`group` 동일)을 **Easy 16 / Standard 16 / Hard 16** 확보 → 언어 일관성 지표 계산 가능
-- 나머지는 각 언어 **네이티브 저작**(직역이 아닌 현지 규범·문화·정책 맥락)
+- Minimum requirement: each cell ≥ 30 (secures a ±~9%p confidence interval per tier)
+- **Cross-language set**: secure 4 language versions of the same item (same `group`) for **Easy 16 / Standard 16 / Hard 16** → enables language-consistency metrics
+- The rest is **native authoring** per language (local norms, culture, and policy context, not literal translation)
 
 ---
 
-## 3. 채점 (System One 특성 반영)
+## 3. Scoring (reflecting System One characteristics)
 
-1. **정확도**: `overall` / `tier별` / `lang별` / `tier×lang` 12셀
-2. **확신도 품질**: ECE(10-bin), Brier, mean TVD (라벨 분포 보고 시)
-3. **언어 일관성 (LCS)**: 동일 `group` 문항에서 언어 간 정답률 편차
-   - `lang_gap = max_lang(acc) − min_lang(acc)` (group 평균)
-   - 번역 강건성: 같은 group 내 정답 불일치율
-4. **효율**: p50/p95 지연, 문항당 입력 토큰 → 예상 비용
-5. **종합**: JevBench 방식의 축(intelligence / calibration / speed / cost) + 언어별 분해
-   - `XI-V Score = 0.4·intelligence + 0.3·calibration + 0.15·speed + 0.15·cost` (가중 초안)
-6. 리더보드 컬럼(제안): `model | overall | easy | standard | hard | en | ko | zh | ja | lang_gap↓ | ECE↓ | p50 | score`
+1. **Accuracy**: `overall` / per `tier` / per `lang` / 12 `tier×lang` cells
+2. **Confidence quality**: ECE (10-bin), Brier, mean TVD (when a label distribution is reported)
+3. **Language consistency (LCS)**: accuracy deviation across languages for items with the same `group`
+   - `lang_gap = max_lang(acc) − min_lang(acc)` (group average)
+   - Translation robustness: rate of answer disagreement within the same group
+4. **Efficiency**: p50/p95 latency, input tokens per item → estimated cost
+5. **Composite**: JevBench-style axes (intelligence / calibration / speed / cost) + per-language decomposition
+   - `XI-V Score = 0.4·intelligence + 0.3·calibration + 0.15·speed + 0.15·cost` (draft weights)
+6. Leaderboard columns (proposed): `model | overall | easy | standard | hard | en | ko | zh | ja | lang_gap↓ | ECE↓ | p50 | score`
 
 ---
 
-## 4. 데이터 소스 매핑(1차 후보)
+## 4. Data source mapping (first candidates)
 
-| 언어 | Easy (직접 확인) | Standard (결합) | Hard (분산 근거) |
+| Language | Easy (direct verification) | Standard (combination) | Hard (dispersed evidence) |
 |---|---|---|---|
-| en | JevBench easy 48 재사용 + 자체저작 | JevBench original(standard) 72 재사용 | JevBench hard 111 재사용 |
-| ko | KorNLI/NSMC(명시 라벨) | KMMLU, KLUE-STS | 장문 정책·계약 각색, KMMLU-hard |
-| zh | CLUE-TNEWS, OCNLI | CMMLU, CLUE-CMNLI/AFQMC | C3(장문 독해)·복합 추론 |
-| ja | MARC-ja, JSTS | JNLI, JMMLU | 장문 정책·기술문서 각색 |
+| en | reuse JevBench easy 48 + own authoring | reuse JevBench original(standard) 72 | reuse JevBench hard 111 |
+| ko | KorNLI/NSMC (explicit labels) | KMMLU, KLUE-STS | long policy/contract adaptation, KMMLU-hard |
+| zh | CLUE-TNEWS, OCNLI | CMMLU, CLUE-CMNLI/AFQMC | C3 (long reading comprehension) · composite reasoning |
+| ja | MARC-ja, JSTS | JNLI, JMMLU | long policy/technical document adaptation |
 
-- 기존 빌더 재사용: `scripts/build_korean_dataset.py`, `build_mmlu_dataset.py`, `scripts/specs_multilingual.py`(`global_mmlu`, `belebele`, `mmlu_prox`), `scripts/specs_extra.py`(KMMLU·JNLI·CLUE·C3)
-- **학습 누수 가드**: XERON 학습에 쓰인 소스(train_items_x10_8192)와 겹치면 `scripts/check_eval_leak.py`로 제거
-- 라이선스: 문항별 `provenance.license` 필수, cc-by-nd-4.0(KMMLU)은 **개작 금지** → 원형 유지
+- Reuse of existing builders: `scripts/build_korean_dataset.py`, `build_mmlu_dataset.py`, `scripts/specs_multilingual.py`(`global_mmlu`, `belebele`, `mmlu_prox`), `scripts/specs_extra.py`(KMMLU·JNLI·CLUE·C3)
+- **Training-leak guard**: if a source overlaps with what was used to train XERON (train_items_x10_8192), remove it via `scripts/check_eval_leak.py`
+- License: `provenance.license` is required per item; cc-by-nd-4.0 (KMMLU) **forbids modification** → keep as-is
 
 ---
 
-## 5. 산출물 레이아웃
+## 5. Deliverable layout
 
 ```
 bench/xi-v-bench-1.0/
-├── SPEC.md                     # 이 문서
-├── schema.json                 # 문항 스키마(검증용)
+├── SPEC.md                     # this document
+├── schema.json                 # item schema (for validation)
 ├── datasets/
 │   ├── en/{easy,standard,hard}.jsonl
 │   ├── ko/{easy,standard,hard}.jsonl
 │   ├── zh/{easy,standard,hard}.jsonl
 │   ├── ja/{easy,standard,hard}.jsonl
-│   └── manifest.json           # 셀별 개수·해시·라이선스 요약
-├── builders/                   # 언어별 수집·각색·번역 스크립트
-├── run_xi_v_bench.py           # 러너 (모델 어댑터: laya/XERON 로컬, API)
-├── score_xi_v_bench.py         # 채점 (tier×lang, ECE, LCS)
-└── results/                    # 모델별 결과 jsonl + 요약 json
+│   └── manifest.json           # per-cell counts, hashes, license summary
+├── builders/                   # per-language collection, localization, and translation scripts
+├── run_xi_v_bench.py           # runner (model adapters: laya/XERON local, API)
+├── score_xi_v_bench.py         # scoring (tier×lang, ECE, LCS)
+└── results/                    # per-model result jsonl + summary json
 ```
 
 ---
 
-## 6. 미결(주인님 결정 필요)
+## 6. Open questions (owner decision needed)
 
-1. **문항 수/구성**: 위 32×12=384안 vs 축소(30×12=360) vs 확대. Hard 비중 더 늘릴지.
-2. **문항 출처 비중**: (a) JevBench 231 영어 재사용 + ko/zh/ja 신규, (b) 공개 데이터셋 재구성 위주, (c) 전량 신규 저작(품질 최고·시간 최다)
-3. **번역 방식**: 교차언어 세트를 (i) 전문 번역(직역) (ii) 현지 각색(의미 유지, 문화 치환) 중 어느 쪽으로?
-4. **평가 대상**: System One = XERON(로컬 laya 스냅샷) 기준인지, 외부 API 모델도 같이 넣어 비교군을 만들지
-5. **정답 확신도 필수 여부**: 모든 문항에 확신도(분포) 요구 vs accuracy만
+1. **Item count/composition**: the 32×12=384 plan above vs. reduced (30×12=360) vs. expanded. Whether to increase the Hard share further.
+2. **Item source mix**: (a) reuse 231 JevBench English items + new ko/zh/ja, (b) mainly recompose public datasets, (c) author all items newly (highest quality, most time)
+3. **Translation method**: should the cross-language set be (i) professional translation (literal) or (ii) localized adaptation (preserve meaning, replace culture)?
+4. **Evaluation targets**: is System One defined by XERON (local laya snapshot), or should external API models also be included to form a comparison group?
+5. **Whether confidence is mandatory**: require confidence (distribution) for every item vs. accuracy only
 
 
 ---
 
-## 7. 하네스 호환 규칙 (중요)
+## 7. Harness compatibility rules (important)
 
-기존 JevBench 하네스(`/tmp/jevbench`, `jevbench.tasks.Task`)를 그대로 재사용한다. 따라서:
+The existing JevBench harness (`/tmp/jevbench`, `jevbench.tasks.Task`) is reused as-is. Therefore:
 
-- `question.type` ∈ `noul | choice | score` (내부 키 이름은 **`type`**, `qtype` 아님)
-- `split` ∈ `public | private` → XI-V는 `public`
-- `family` ∈ `FAMILIES`(routing/adequacy/policy/intent/ordinal/extraction) 또는 `HARD_FAMILIES`(long_policy/tradeoff/ambiguous/trap/multi_hop/temporal_numeric/adversarial/probability)
-- `state`에 정답 누출 금지(`expected`/`label`/`ground_truth`/`answer_key` 키 금지)
-- **언어/티어는 id 접두 + `provenance.xi_lang` / `provenance.xi_tier`에 기록** (Task 데이터클래스에 없는 필드이므로)
-- 교차언어 동일 문항은 `group`에 같은 값 → 언어 일관성 지표 계산
-- 러너는 어댑터 인터페이스 그대로: `agent.predict(state, {"decision": {type, instructions, criteria}})`
+- `question.type` ∈ `noul | choice | score` (the internal key name is **`type`**, not `qtype`)
+- `split` ∈ `public | private` → XI-V uses `public`
+- `family` ∈ `FAMILIES`(routing/adequacy/policy/intent/ordinal/extraction) or `HARD_FAMILIES`(long_policy/tradeoff/ambiguous/trap/multi_hop/temporal_numeric/adversarial/probability)
+- No answer leakage in `state` (the `expected`/`label`/`ground_truth`/`answer_key` keys are forbidden)
+- **Language/tier are recorded in the id prefix + `provenance.xi_lang` / `provenance.xi_tier`** (since they are not fields in the Task dataclass)
+- Identical cross-language items share the same value in `group` → enables language-consistency metrics
+- The runner keeps the adapter interface as-is: `agent.predict(state, {"decision": {type, instructions, criteria}})`

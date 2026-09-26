@@ -111,8 +111,8 @@
  },
  "frozen_utc": "2026-09-26T09:10:00Z",
  "notes": [
-  "noul 라벨은 하네스 계약상 no/yes 고정(현지 표현은 criteria/instructions 에 보존)",
-  "score 라벨은 레벨 인덱스 문자열 0..n",
-  "모든 문항 license=MIT (JevBench public 유래 분은 원 라이선스 계승, 각색 고지 포함)"
+  "noul labels are fixed to no/yes by the harness contract (these are the probability keys returned by adapters); localized wording is preserved in criteria/instructions, whose keys are exactly true/false (the option texts the model reads)",
+  "score labels are level index strings 0..n",
+  "all items license=MIT (items derived from JevBench public inherit the original license, adaptation notice included)"
  ]
 }
