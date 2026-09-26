@@ -65,7 +65,12 @@ python3 score_xi_v_bench.py results/<name> --json results/<name>.summary.json
 
 | Model | overall | easy | standard | hard | en | ko | zh | ja | lang_gap↓ | ECE↓ |
 |---|---|---|---|---|---|---|---|---|---|---|
-| _to be measured_ | | | | | | | | | | |
+| XERON-1.0 (encoder 1536×44, head 1024×4, 1.329B) | 0.5495 | 0.8203 | 0.5234 | 0.3047 | 0.6146 | 0.5104 | 0.5000 | 0.5729 | 0.4688 | 0.0848 |
+| _JevBench-derived English core (96 items, different bench)_ | 0.5541 | 0.9375 | 0.5556 | 0.3874 | — | — | — | — | — | 0.1101 |
+
+XERON-1.0 details: 384/384 items answered (coverage 1.0), overall ECE 0.0848, Brier 0.5394, p50 latency 1.03 s, mean input 664 tokens.
+Language consistency: 96 cross-language groups, all-languages-agree 0.5312, mean max−min gap 0.4688 (en 0.6146 · ja 0.5729 · ko 0.5104 · zh 0.5000).
+Per-tier: easy 0.8203 · standard 0.5234 · hard 0.3047. Full per-cell JSON: [`results/xeron-1.0.summary.json`](results/xeron-1.0.summary.json).
 
 ## Citation / sources
 
