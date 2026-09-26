@@ -1,0 +1,118 @@
+{
+ "name": "XI-V Bench 1.0",
+ "version": "1.0",
+ "target": "System One models (single-pass decision making)",
+ "languages": [
+  "en",
+  "ko",
+  "zh",
+  "ja"
+ ],
+ "tiers": [
+  "easy",
+  "standard",
+  "hard"
+ ],
+ "base_items": 96,
+ "total_items": 384,
+ "cells": {
+  "en-easy": 32,
+  "en-hard": 32,
+  "en-standard": 32,
+  "ja-easy": 32,
+  "ja-hard": 32,
+  "ja-standard": 32,
+  "ko-easy": 32,
+  "ko-hard": 32,
+  "ko-standard": 32,
+  "zh-easy": 32,
+  "zh-hard": 32,
+  "zh-standard": 32
+ },
+ "cross_language_groups": {
+  "total": 96,
+  "all_four_languages": 96
+ },
+ "question_types": {
+  "choice": 208,
+  "noul": 136,
+  "score": 40
+ },
+ "families": {
+  "intent": 96,
+  "fact": 48,
+  "policy": 48,
+  "extraction": 32,
+  "ordinal": 32,
+  "long_policy": 32,
+  "probability": 28,
+  "ambiguous": 28,
+  "temporal_numeric": 20,
+  "multi_hop": 20
+ },
+ "licenses": {
+  "MIT": 384
+ },
+ "state_chars_mean_by_lang": {
+  "en": 1626.1,
+  "ko": 987.9,
+  "zh": 755.6,
+  "ja": 902.4
+ },
+ "files": {
+  "datasets/en/easy.jsonl": {
+   "items": 32,
+   "sha256": "3d2d60c76d157cf739581d177d0cb5b2e9806395b415e128c3f362673f1ba566"
+  },
+  "datasets/en/hard.jsonl": {
+   "items": 32,
+   "sha256": "1e08ba33b178196593196bba90fafe6ec4b3dbd0247db02b6408052705cbbcfd"
+  },
+  "datasets/en/standard.jsonl": {
+   "items": 32,
+   "sha256": "1d860fbe5c8f41a189d1d4a79f23699859efe4b6cf8000856afd93b6955352bc"
+  },
+  "datasets/ja/easy.jsonl": {
+   "items": 32,
+   "sha256": "b586094712b7d6bea668385238fc8a9d83dcc72faed8f38ce07aa6feeb5f6533"
+  },
+  "datasets/ja/hard.jsonl": {
+   "items": 32,
+   "sha256": "038c580f6b48732d6990b92c0ea2c087a8dcb420d603052662b838c1813e0ecf"
+  },
+  "datasets/ja/standard.jsonl": {
+   "items": 32,
+   "sha256": "a1107ec5ab21e7c690bc77843f2578e9a32ab02c5182cd948bf74d526d93d2a5"
+  },
+  "datasets/ko/easy.jsonl": {
+   "items": 32,
+   "sha256": "6974b7b68414de6c984232097eb24b608280a75a72ed338a03bec9efbe92da27"
+  },
+  "datasets/ko/hard.jsonl": {
+   "items": 32,
+   "sha256": "961f74efd10304df5039243503d83e7f7fee6b52e7e8703d26e50e5ac9a95714"
+  },
+  "datasets/ko/standard.jsonl": {
+   "items": 32,
+   "sha256": "93f7e1f95495f066289c83110c9eecc87c7bbd1b7b93cc8fdec61b5b2533f3e6"
+  },
+  "datasets/zh/easy.jsonl": {
+   "items": 32,
+   "sha256": "b62c336723819242cba840225bb08f862dfe96e93015dfd844e98a26a5fed308"
+  },
+  "datasets/zh/hard.jsonl": {
+   "items": 32,
+   "sha256": "3389525353b57ac494dd4b32f9deef944642b431669f0940d93496142d2d927a"
+  },
+  "datasets/zh/standard.jsonl": {
+   "items": 32,
+   "sha256": "44718a13efa531b5358d095a4804544c3c258f31ccfc7324fefa9cc9c287bb95"
+  }
+ },
+ "frozen_utc": "2026-09-26T09:10:00Z",
+ "notes": [
+  "noul 라벨은 하네스 계약상 no/yes 고정(현지 표현은 criteria/instructions 에 보존)",
+  "score 라벨은 레벨 인덱스 문자열 0..n",
+  "모든 문항 license=MIT (JevBench public 유래 분은 원 라이선스 계승, 각색 고지 포함)"
+ ]
+}

@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "XI-V Bench 1.0 item",
+  "type": "object",
+  "required": ["id", "family", "state", "question", "labels", "expected", "split", "provenance"],
+  "properties": {
+    "id": {"type": "string", "pattern": "^(en|ko|zh|ja)-(easy|standard|hard)-[0-9]{4}$"},
+    "family": {"type": "string"},
+    "group": {"type": ["string", "null"]},
+    "state": {"type": ["string", "object", "array"]},
+    "question": {
+      "type": "object",
+      "required": ["type", "instructions"],
+      "properties": {
+        "type": {"enum": ["noul", "choice", "score"]},
+        "instructions": {"type": "string"},
+        "criteria": {"type": ["object", "array", "null"]}
+      }
+    },
+    "labels": {"type": "array", "items": {"type": "string"}, "minItems": 2},
+    "expected": {},
+    "split": {"enum": ["public", "private"]},
+    "provenance": {
+      "type": "object",
+      "required": ["xi_lang", "xi_tier", "source", "license"],
+      "properties": {
+        "xi_lang": {"enum": ["en", "ko", "zh", "ja"]},
+        "xi_tier": {"enum": ["easy", "standard", "hard"]},
+        "source": {"type": "string"},
+        "source_item_id": {"type": ["string", "null"]},
+        "license": {"type": "string"},
+        "label_basis": {"type": ["string", "null"]},
+        "translation_of": {"type": ["string", "null"]},
+        "reviewed": {"type": "boolean"},
+        "frozen_utc": {"type": ["string", "null"]}
+      }
+    }
+  }
+}

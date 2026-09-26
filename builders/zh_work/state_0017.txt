@@ -1,0 +1,14 @@
+告警  pg-disk-high   严重度：需呼叫   触发时间 2026-09-19 04:12 UTC
+  主机：db-03.prod   挂载点：/var/lib/postgresql   已用：97.2%   阈值：95%   来源：node-alertd
+
+值班聊天（#sre-oncall）
+  04:14  拉维：因为 db-03 的磁盘被呼叫了。打开 “DB Fleet” Grafana 看板——db-03 的磁盘面板显示61%。整晚都是一条平线。看起来像误报？
+  04:16  拉维：node-alertd 以前就不太稳（8月在 cache-07 上误报过两次）。
+  04:17  小美：有可能。看板通常是我们的事实依据。
+
+操作手册 RB-DB-12《数据库主机的磁盘告警》（最近复核 2026-08-20）
+  1. 指标来源。“DB Fleet” Grafana 看板的数据来自 metrics-agent v1，而它只采集每台主机的根卷（“/”）。数据卷（/var/lib/postgresql）仅由 node-alertd 监控，目前没有任何看板面板展示它们（工单 OBS-440）。
+  2. 已知误报：8月 cache-07 的误报，原因是 node-alertd 读取了一个 tmpfs 挂载点；已在 node-alertd 2.3.1 中修复（2026-08-25 全量上线）。
+  3. 若告警报告的是某个数据卷超过阈值，则应视为真实事件：启动 §4 的 WAL/归档清理步骤。
+
+主机事实：db-03 —— 根卷“/”40 GB；数据卷 /var/lib/postgresql 2 TB（独立磁盘）。db-03 上的 node-alertd 版本：2.3.1。
