@@ -89,6 +89,21 @@ def main():
         sys.exit("문항이 없습니다 — datasets/<lang>/<tier>.jsonl 를 먼저 채우세요.")
     print(f"[xi-v] 총 {len(tasks)} 문항", flush=True)
 
+    # preflight: 하네스 규약(질문 빌드)을 먼저 통과시켜 스키마 오류로 러너가 중단되는 일을 막는다
+    from jevbench.adapters.base import build_question
+    bad = []
+    for t in tasks:
+        try:
+            build_question(t)
+        except Exception as e:  # noqa: BLE001
+            bad.append((t.id, f"{type(e).__name__}: {str(e)[:200]}"))
+    if bad:
+        print(f"[xi-v] PREFLIGHT FAIL {len(bad)}건 — 실행 중단")
+        for tid, err in bad[:12]:
+            print("  -", tid, err)
+        sys.exit(1)
+    print(f"[xi-v] preflight OK ({len(tasks)} 문항 규약 통과)", flush=True)
+
     ad = LayaLocalAdapter(endpoint=args.model, model=args.label, threads=args.threads)
     t0 = time.perf_counter()
     ad.load()

@@ -81,6 +81,16 @@ def main():
                             Task.from_dict(d).validate()
                         except Exception as e:
                             errors.append(f"{where}: JevBench 규약 위반 {e}")
+                    q = d.get("question") or {}
+                    crit = q.get("criteria")
+                    if q.get("type") == "noul" and isinstance(crit, dict):
+                        badk = [k for k in crit if k not in ("true", "false")]
+                        if badk:
+                            errors.append(f"{where}: noul criteria 키는 true/false 만 허용 — {badk}")
+                    if q.get("type") == "choice" and isinstance(crit, dict):
+                        badk = [k for k in crit if k not in d.get("labels", [])]
+                        if badk:
+                            errors.append(f"{where}: choice criteria 키가 labels 밖 — {badk}")
                     st = d.get("state")
                     exp = d.get("expected")
                     # 짧은 라벨("no"/"M"/"low")은 문맥상 자연 등장하므로 8자 이상만 누출 신호로 본다.

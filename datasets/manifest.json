@@ -78,7 +78,7 @@
   },
   "datasets/ja/hard.jsonl": {
    "items": 32,
-   "sha256": "038c580f6b48732d6990b92c0ea2c087a8dcb420d603052662b838c1813e0ecf"
+   "sha256": "a11abe070aebd816d1a2dac0036ef5e035685128b535c42d032d991a41c0c06d"
   },
   "datasets/ja/standard.jsonl": {
    "items": 32,
@@ -86,7 +86,7 @@
   },
   "datasets/ko/easy.jsonl": {
    "items": 32,
-   "sha256": "6974b7b68414de6c984232097eb24b608280a75a72ed338a03bec9efbe92da27"
+   "sha256": "6d8eb9348cdedd559ff61d78ba79caec0f8be37f774bfaaefef6e79b7919275e"
   },
   "datasets/ko/hard.jsonl": {
    "items": 32,
@@ -94,11 +94,11 @@
   },
   "datasets/ko/standard.jsonl": {
    "items": 32,
-   "sha256": "93f7e1f95495f066289c83110c9eecc87c7bbd1b7b93cc8fdec61b5b2533f3e6"
+   "sha256": "00f4e3a74863b00bf4e4584351723c7c36584750cfc048edd99130a9245a3a26"
   },
   "datasets/zh/easy.jsonl": {
    "items": 32,
-   "sha256": "b62c336723819242cba840225bb08f862dfe96e93015dfd844e98a26a5fed308"
+   "sha256": "5dcbe888f7911c91a095f684733109102ac6ec4227f7320feaeca1d614be120a"
   },
   "datasets/zh/hard.jsonl": {
    "items": 32,
@@ -106,7 +106,7 @@
   },
   "datasets/zh/standard.jsonl": {
    "items": 32,
-   "sha256": "44718a13efa531b5358d095a4804544c3c258f31ccfc7324fefa9cc9c287bb95"
+   "sha256": "0ca8f77c80224b66ac1270ae19229b6376a0c5d18e306d9751cb025f9d41cef1"
   }
  },
  "frozen_utc": "2026-09-26T09:10:00Z",
